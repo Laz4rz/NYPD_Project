@@ -4,6 +4,7 @@ Biblioteka została stworzona w celu analizowania i czyszczenia danych pochodzą
 
 Dochody:
 https://www.gov.pl/web/finanse/udzialy-za-2020-r
+
 Populacja:
 https://stat.gov.pl/obszary-tematyczne/ludnosc/ludnosc/ludnosc-stan-i-struktura-ludnosci-oraz-ruch-naturalny-w-przekroju-terytorialnym-stan-w-dniu-31-12-2020,6,29.html
 
