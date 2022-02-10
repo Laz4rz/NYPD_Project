@@ -1,4 +1,4 @@
-#README
+# README
 ### JST Analysis
 Biblioteka została stworzona w celu analizowania i czyszczenia danych pochodzących z arkuszów populacji oraz dochodów Jednostek Samorządu Terytorialnego udostępnianych na stronach rządowych. 
 
