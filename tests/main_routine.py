@@ -62,7 +62,11 @@ def test_both():
 
 def clean():
     files_in_directory = os.listdir()
-    filtered_files = [file for file in files_in_directory if file.endswith(".xlsx") or file.endswith(".xls")]
+    filtered_files = [
+        file
+        for file in files_in_directory
+        if file.endswith(".xlsx") or file.endswith(".xls")
+    ]
     for file in filtered_files:
         os.remove(file)
 
@@ -88,5 +92,6 @@ def integration():
     clean()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     integration()
+    # test_income_comparison_routine()
