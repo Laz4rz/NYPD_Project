@@ -1,4 +1,12 @@
-from JST_analysis import load_excel, save_to_excel, compare_incomes
+from JST_analysis import (
+    load_income_excel,
+    save_to_excel,
+    compare_incomes,
+    load_population_excel,
+    population_income_merge,
+    calculate_JST,
+    calculate_tax_mean,
+)
 import os
 
 
@@ -11,10 +19,10 @@ def test_income_comparison_routine():
     report_path = r"../data/reports"
 
     for enum, file in enumerate(os.listdir(path19)):
-        dict_2019[enum] = load_excel(f"{path19}/{file}", only_important=True)
+        dict_2019[enum] = load_income_excel(f"{path19}/{file}", only_important=True)
 
     for enum, file in enumerate(os.listdir(path)):
-        dict_2020[enum] = load_excel(f"{path}/{file}", only_important=True)
+        dict_2020[enum] = load_income_excel(f"{path}/{file}", only_important=True)
 
     df = compare_incomes(dict_2019[0], dict_2020[2])
     save_to_excel(df, f"{report_path}/file_gmina.xlsx")
@@ -29,3 +37,29 @@ def test_income_comparison_routine():
     save_to_excel(df, f"{report_path}/file_npp.xlsx")
 
     print("Income comparison routine passed without interruption")
+
+
+def test_population_load_routine():
+    path = r"C:\Users\szant\PycharmProjects\NYPD_Project\data\tabela12.xls"
+    dict = load_population_excel(file_path=path)
+    return dict
+
+
+def test_both():
+    dict_2020 = {}
+    path = r"../data/2020"
+    report_path = r"../data/reports"
+
+    for enum, file in enumerate(os.listdir(path)):
+        dict_2020[enum] = load_income_excel(f"{path}/{file}", only_important=True)
+
+    population_dict = test_population_load_routine()
+
+    return dict_2020, population_dict
+
+
+income, population = test_both()
+df = population_income_merge(income[2], population)
+df1 = calculate_tax_mean(df=df)
+df2 = calculate_JST(df=df, JST_type="powiat")
+df3 = calculate_JST(df=df, JST_type="województwo")

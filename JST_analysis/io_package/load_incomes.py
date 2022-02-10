@@ -3,6 +3,7 @@ Module containing functions to load the xls file
 """
 
 import pandas as pd
+from operator import methodcaller
 
 from .tax_rate import get_tax_rate
 
@@ -13,19 +14,6 @@ JST_types = {
     "Powiaty": "Powiaty",
     "Wojewodztwa": "Województwa",
 }
-
-
-def merge_territorial_code(df: pd.DataFrame) -> pd.DataFrame:
-    codes = df.filter(regex="WK|PK|GK|GT", axis=1)
-    df["Kod"] = codes.iloc[:, 0]
-    for i in range(1, len(codes.columns)):
-        df["Kod"] += codes.iloc[:, i]
-    return df
-
-
-def normalize_JST_names(df: pd.DataFrame) -> pd.DataFrame:
-    df[df.attrs["JST_type"]] = df[df.attrs["JST_type"]].str.lower()
-    return df
 
 
 def clean_columns_names(df: pd.DataFrame) -> pd.DataFrame:
@@ -42,10 +30,13 @@ def drop_na_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.dropna(axis=1, how="all")
 
 
-def only_important_columns(df: pd.DataFrame) -> pd.DataFrame:
-    return df.filter(
-        regex=f"Dochody|{df.attrs['JST_type']}|Kod|województwo|powiat", axis=1
-    )
+def merge_territorial_code(df: pd.DataFrame) -> pd.DataFrame:
+    codes = df.filter(regex="WK|PK|GK|GT", axis=1)
+    df["Kod"] = codes.iloc[:, 0]
+    for i in range(1, len(codes.columns)):
+        df["Kod"] += codes.iloc[:, i]
+        df["Kod"] = df["Kod"].apply(methodcaller("replace", "-", ""))
+    return df
 
 
 def set_JST_type(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
@@ -59,17 +50,9 @@ def set_JST_type(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
     print("Couldnt match file_path to any JST type from list")
 
 
-def get_year(file_path: str) -> str:
-    years = ["2019", "2020"]
-    file_name = file_path.split("/")[-1]
-    for year in years:
-        if year in file_name:
-            return year
-    print("Couldnt match file_path to any year with tax rate saved")
-
-
-def set_columns_order(df: pd.DataFrame) -> pd.DataFrame:
-    return df[["Kod", df.attrs["JST_type"], "województwo", "powiat", "Dochody PIT"]]
+def normalize_JST_names(df: pd.DataFrame) -> pd.DataFrame:
+    df[df.attrs["JST_type"]] = df[df.attrs["JST_type"]].str.lower()
+    return df
 
 
 def set_and_apply_tax_rate(
@@ -111,7 +94,53 @@ def set_and_apply_tax_rate(
                 year=df.attrs["year"], JST_type=df.attrs["JST_type"]
             )
         df["Dochody PIT"] *= df.attrs["tax_rate"]
+        df["Dochody PIT"] = df["Dochody PIT"].map(
+            lambda x: "{:.2f}".format(round(x, 2))
+        )
     return df
+
+
+def only_important_columns(df: pd.DataFrame) -> pd.DataFrame:
+    return df.filter(
+        regex=f"Dochody|{df.attrs['JST_type']}|Kod|województwo|powiat", axis=1
+    )
+
+
+def set_columns_order(df: pd.DataFrame) -> pd.DataFrame:
+    return df[["Kod", df.attrs["JST_type"], "województwo", "powiat", "Dochody PIT"]]
+
+
+def set_df_type(df: pd.DataFrame) -> pd.DataFrame:
+    df.attrs["type"] = "income_base"
+    return df
+
+
+def set_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.astype(
+        {
+            "Kod": "string",
+            df.attrs["JST_type"]: "string",
+            "województwo": "string",
+            "powiat": "string",
+            "Dochody PIT": "float",
+        }
+    )
+    return df
+
+
+def clean_values(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.applymap(lambda x: x.lstrip() if isinstance(x, str) else x)
+    df = df.applymap(lambda x: x.rstrip() if isinstance(x, str) else x)
+    return df
+
+
+def get_year(file_path: str) -> str:
+    years = ["2019", "2020"]
+    file_name = file_path.split("/")[-1]
+    for year in years:
+        if year in file_name:
+            return year
+    print("Couldnt match file_path to any year with tax rate saved")
 
 
 def sum_NPP_income(df: pd.DataFrame) -> pd.DataFrame:
@@ -121,7 +150,7 @@ def sum_NPP_income(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def load_excel(
+def load_income_excel(
     file_path: str,
     sheet_name: str = 0,
     only_important: bool = False,
@@ -160,29 +189,7 @@ def load_excel(
         df = only_important_columns(df=df)
         df = set_columns_order(df=df)
 
+    df = set_df_type(df=df)
+    df = set_dtypes(df=df)
+    df = clean_values(df=df)
     return df
-
-
-"""
-    df = pd.read_excel(io=file_path, sheet_name=sheet_name)
-    df = clean_columns_names(df=df)
-    df = drop_na_columns(df=df)
-    df = merge_territorial_code(df=df)
-
-    if only_important:
-        df = only_important_columns(df=df)
-
-    if JST_type is None:
-        df = set_JST_type(df=df, file_path=file_path)
-
-    df = normalize_JST_names(df=df)
-    df = set_and_apply_tax_rate(
-        df=df, year=year, tax_rate=tax_rate, file_path=file_path
-    )
-
-    # if df.attrs["JST_type"] == "NPP":
-    #     df = sum_NPP_income(df=df)
-
-    df = set_columns_order(df=df)
-    return df
-"""
