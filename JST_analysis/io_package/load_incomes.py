@@ -251,12 +251,6 @@ def get_year(file_path: str) -> str:
 
 
 def sum_NPP_income(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> df = pd.DataFrame({"Kod": [75621, 75621], 'Dochody PIT': [100, 1], "NPP": ['a', 'a']})
-    >>> sum_NPP_income(df)
-       index    Kod  Dochody PIT NPP
-    0      0  75621          101   a
-    """
     df_sum = df.groupby(["Kod"])[["Dochody PIT"]].agg("sum").reset_index()
     df = df.drop_duplicates(subset=["NPP"]).reset_index()
     df["Dochody PIT"] = df_sum["Dochody PIT"]

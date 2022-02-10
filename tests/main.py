@@ -49,6 +49,7 @@ def test_both():
 if __name__ == '__main__':
     import os
     import doctest
+    import unittest
 
     from JST_analysis import (
         load_income_excel,
@@ -61,7 +62,6 @@ if __name__ == '__main__':
         calculate_estimates,
     )
 
-    doctest.testmod(verbose=True)
     income, population = test_both()
     df = population_income_merge(income[2], population)
     df1 = calculate_tax_mean(df=df)
