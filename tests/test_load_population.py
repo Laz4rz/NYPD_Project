@@ -9,7 +9,7 @@ class TestPopulation(unittest.TestCase):
             load_excel_pop,
         )
 
-        excel_file = "../data/tabela12.xls"
+        excel_file = "data/tabela12.xls"
         result = create_population_dict(load_excel_pop(excel_file))
         self.assertIsInstance(result, dict)
         self.assertEqual(len(result.keys()), 16)
@@ -29,7 +29,7 @@ class TestPopulation(unittest.TestCase):
             aggregate_populations,
         )
 
-        file_path = "../data/tabela12.xls"
+        file_path = "data/tabela12.xls"
         excel_file = load_excel_pop(file_path=file_path)
         population_dict = create_population_dict(excel_file=excel_file)
         population_dict = clean_dataframes(population_dict=population_dict)

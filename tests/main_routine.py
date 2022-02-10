@@ -14,11 +14,11 @@ from JST_analysis import (
 
 def test_income_comparison_routine():
     dict_2019 = {}
-    path19 = r"../data/2019"
+    path19 = r"data/2019"
 
     dict_2020 = {}
-    path = r"../data/2020"
-    report_path = r"../data/reports"
+    path = r"data/2020"
+    report_path = r"data/reports"
 
     for enum, file in enumerate(os.listdir(path19)):
         dict_2019[enum] = load_income_excel(f"{path19}/{file}", only_important=True)
@@ -49,7 +49,7 @@ def test_population_load_routine():
 
 def test_both():
     dict_2020 = {}
-    path = r"../data/2020"
+    path = r"data/2020"
     # report_path = r"../data/reports"
 
     for enum, file in enumerate(os.listdir(path)):
