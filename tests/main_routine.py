@@ -60,6 +60,13 @@ def test_both():
     return dict_2020, population_dict
 
 
+def clean():
+    files_in_directory = os.listdir()
+    filtered_files = [file for file in files_in_directory if file.endswith(".xlsx") or file.endswith(".xls")]
+    for file in filtered_files:
+        os.remove(file)
+
+
 def integration():
     income, population = test_both()
     df = population_income_merge(income[2], population)
@@ -77,6 +84,8 @@ def integration():
     save_to_excel(df3, "file1.xlsx")
     save_to_excel(df4, "file1.xlsx")
     save_to_excel(df5, "file1.xlsx")
+
+    clean()
 
 
 if __name__ == '__main__':
