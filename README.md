@@ -3,9 +3,11 @@
 Biblioteka została stworzona w celu analizowania i czyszczenia danych pochodzących z arkuszów populacji oraz dochodów Jednostek Samorządu Terytorialnego udostępnianych na stronach rządowych. 
 
 Dochody:
+
 https://www.gov.pl/web/finanse/udzialy-za-2020-r
 
 Populacja:
+
 https://stat.gov.pl/obszary-tematyczne/ludnosc/ludnosc/ludnosc-stan-i-struktura-ludnosci-oraz-ruch-naturalny-w-przekroju-terytorialnym-stan-w-dniu-31-12-2020,6,29.html
 
 #### Instalowanie biblioteki
