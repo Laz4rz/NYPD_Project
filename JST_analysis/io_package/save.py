@@ -29,4 +29,5 @@ def save_to_excel(df: pd.DataFrame, filepath: str) -> None:
     :return: None
     """
     save(df=df, filepath=filepath)
-    integrity_report_save(df=df, filepath=filepath)
+    if 'integrity_report' in df.attrs.keys():
+        integrity_report_save(df=df, filepath=filepath)

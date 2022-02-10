@@ -33,11 +33,6 @@ def get_tax_rate(year: str, JST_type: str, chapter: str = None) -> float:
 
 
 def clean_columns_names(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> clean_columns_names(pd.DataFrame({"xd": [None, None, "Dochody", None, None, None, 10]}))
-       index Dochody PIT
-    0      6          10
-    """
     for column in df.columns:
         column_name = "".join(df[column][:6].dropna().tolist())
         df = df.rename(columns={column: column_name})
@@ -48,22 +43,10 @@ def clean_columns_names(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def drop_na_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> drop_na_columns(pd.DataFrame({"xd": [None, None, None, None, None, None, None]}))
-    Empty DataFrame
-    Columns: []
-    Index: [0, 1, 2, 3, 4, 5, 6]
-    """
     return df.dropna(axis=1, how="all")
 
 
 def merge_territorial_code(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> merge_territorial_code(pd.DataFrame({"WK": ["20", "30"], "GK": ["1", '-'], 'xd': ["20", "5"]}))
-       WK GK  xd  Kod
-    0  20  1  20  201
-    1  30  -   5   30
-    """
     codes = df.filter(regex="WK|PK|GK|GT", axis=1)
     df["Kod"] = codes.iloc[:, 0]
     for i in range(1, len(codes.columns)):
@@ -73,12 +56,6 @@ def merge_territorial_code(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def set_JST_type(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
-    """
-    >>> set_JST_type(pd.DataFrame({"WK": ["20", "30"], 'JST': ["20", "5"]}), file_path="data/2019/20200214_Gminy_za_2019.xlsx")
-       WK Gminy
-    0  20    20
-    1  30     5
-    """
     file_name = file_path.split("/")[-1]
     for JST_type in JST_types.keys():
         if JST_type in file_name:
@@ -105,20 +82,6 @@ def normalize_JST_names(df: pd.DataFrame) -> pd.DataFrame:
 def set_and_apply_tax_rate(
     df: pd.DataFrame, year: str, tax_rate: float = None, file_path: str = None
 ) -> pd.DataFrame:
-    """
-    >>> df = pd.DataFrame({"Gminy": ["aaV", "AAAAAA"], 'Dochody PIT': [100, 1]})
-    >>> df.attrs['JST_type'] = "Gminy"
-    >>> set_and_apply_tax_rate(df, "2020", None, None)
-        Gminy Dochody PIT
-    0     aaV       39.34
-    1  AAAAAA        0.39
-
-    >>> df = pd.DataFrame({"NPP": ["aaV", "aaV"], "ROZDZIAŁ": [75621, 75622], 'Dochody PIT': [100, 1]})
-    >>> df.attrs['JST_type'] = "NPP"
-    >>> set_and_apply_tax_rate(df, "2020", None, None)
-       index  NPP  ROZDZIAŁ Dochody PIT
-    0      0  aaV     75621       39.44
-    """
     if df.attrs["JST_type"] == "NPP":
         if year is None:
             df.attrs["year"] = get_year(file_path=file_path)
@@ -162,54 +125,21 @@ def set_and_apply_tax_rate(
 
 
 def only_important_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> df = pd.DataFrame({"Dochody": ["aaV", "aaV"], "ROZDZIAŁ": [75621, 75622], 'Dochody PIT': [100, 1]})
-    >>> df.attrs['JST_type'] = "NPP"
-    >>> only_important_columns(df)
-      Dochody  Dochody PIT
-    0     aaV          100
-    1     aaV            1
-    """
     return df.filter(
         regex=f"Dochody|{df.attrs['JST_type']}|Kod|województwo|powiat", axis=1
     )
 
 
 def set_columns_order(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> df = pd.DataFrame({"województwo": ["aaV", "aaV"], "Kod": [75621, 75622], 'Dochody PIT': [100, 1], "NPP": [100, 2], "powiat": [100, 100]})
-    >>> df.attrs['JST_type'] = "NPP"
-    >>> set_columns_order(df)
-         Kod  NPP województwo  powiat  Dochody PIT
-    0  75621  100         aaV     100          100
-    1  75622    2         aaV     100            1
-    """
     return df[["Kod", df.attrs["JST_type"], "województwo", "powiat", "Dochody PIT"]]
 
 
 def set_df_type(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> df = pd.DataFrame()
-    >>> df = set_df_type(df)
-    >>> df.attrs["type"] == "income_base"
-    True
-    """
     df.attrs["type"] = "income_base"
     return df
 
 
 def set_dtypes(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> df = pd.DataFrame({"województwo": ["aaV", "aaV"], "Kod": [75621, 75622], 'Dochody PIT': [100, 1], "NPP": [100, 2], "powiat": [100, 100]})
-    >>> df.attrs['JST_type'] = "NPP"
-    >>> set_dtypes(df).dtypes
-    województwo     string
-    Kod             string
-    Dochody PIT    float64
-    NPP             string
-    powiat          string
-    dtype: object
-     """
     df = df.astype(
         {
             "Kod": "string",
@@ -223,25 +153,12 @@ def set_dtypes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_values(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    >>> df = pd.DataFrame({"województwo": [" a aV", "aa V ", " aaaa a    ", 1]})
-    >>> clean_values(df)
-      województwo
-    0        a aV
-    1        aa V
-    2      aaaa a
-    3           1
-     """
     df = df.applymap(lambda x: x.lstrip() if isinstance(x, str) else x)
     df = df.applymap(lambda x: x.rstrip() if isinstance(x, str) else x)
     return df
 
 
 def get_year(file_path: str) -> str:
-    """
-    >>> get_year(file_path="data/2019/20200214_Gminy_za_2019.xlsx")
-    '2019'
-     """
     years = ["2019", "2020"]
     file_name = file_path.split("/")[-1]
     for year in years:

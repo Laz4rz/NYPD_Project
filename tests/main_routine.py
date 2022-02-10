@@ -1,3 +1,17 @@
+import os
+
+from JST_analysis import (
+    load_income_excel,
+    save_to_excel,
+    compare_incomes,
+    load_population_excel,
+    population_income_merge,
+    calculate_JST,
+    calculate_tax_mean,
+    calculate_estimates,
+)
+
+
 def test_income_comparison_routine():
     dict_2019 = {}
     path19 = r"../data/2019"
@@ -46,22 +60,7 @@ def test_both():
     return dict_2020, population_dict
 
 
-if __name__ == '__main__':
-    import os
-    import doctest
-    import unittest
-
-    from JST_analysis import (
-        load_income_excel,
-        save_to_excel,
-        compare_incomes,
-        load_population_excel,
-        population_income_merge,
-        calculate_JST,
-        calculate_tax_mean,
-        calculate_estimates,
-    )
-
+def integration():
     income, population = test_both()
     df = population_income_merge(income[2], population)
     df1 = calculate_tax_mean(df=df)
@@ -73,3 +72,12 @@ if __name__ == '__main__':
     df5 = calculate_estimates(
         df_income_population=df, df_income=income[1], JST_level="województwo"
     )
+    save_to_excel(df1, "file1.xlsx")
+    save_to_excel(df2, "file1.xlsx")
+    save_to_excel(df3, "file1.xlsx")
+    save_to_excel(df4, "file1.xlsx")
+    save_to_excel(df5, "file1.xlsx")
+
+
+if __name__ == '__main__':
+    integration()
