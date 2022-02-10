@@ -10,6 +10,7 @@ from .analysis_package.population_operations import (
     population_income_merge,
     calculate_JST,
     calculate_tax_mean,
+    calculate_estimates,
 )
 
 __all__ = (
@@ -20,4 +21,5 @@ __all__ = (
     "population_income_merge",
     "calculate_JST",
     "calculate_tax_mean",
+    "calculate_estimates",
 )

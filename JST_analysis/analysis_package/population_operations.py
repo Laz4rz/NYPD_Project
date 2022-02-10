@@ -2,16 +2,48 @@
 This module lets you do basic operations on the population and population-income data.
 """
 import pandas as pd
+import numpy as np
 
 from .integrity import check_integrity
+
+
+def calculate_estimates(
+    df_income_population: pd.DataFrame, df_income: pd.DataFrame, JST_level: str
+) -> pd.DataFrame:
+    """
+    This function lets you create estimated Dochody PIT on desired JST_level by calculating a weighted average on
+    Populacja and Dochody PIT of JSTs beneath it
+    :param df_income_population: "income-population" dataframe
+    :param df_income: "income" dataframe of JST_type == JST_level
+    :param JST_level: "powiat" or "województwo" based on which level you wish to estimate
+    :return: dataframe with estimates and difference between estimate and reported value
+    """
+    df_estimates = (
+        df_income_population.groupby(by=JST_level)
+        .apply(lambda x: np.average(x["Dochody PIT"], weights=x["Populacja"]))
+        .reset_index()
+    )
+    df = df_income.merge(
+        df_estimates.drop_duplicates(),
+        how="left",
+        indicator=True,
+        left_on=df_income.attrs["JST_type"],
+        right_on=JST_level,
+    )
+    integrity = check_integrity(df1=df, df2=df, mode="estimates")
+    df = df[~df[0].isna()]
+    df = df[df.columns.drop(list(df.filter(regex="_merge|_x|_y")))]
+    df = df.rename(columns={0: "Estymata dochodu PIT"})
+    df["Pomyłka Estymata/Dochód"] = df["Estymata dochodu PIT"] - df["Dochody PIT"]
+    return df
 
 
 def calculate_JST(df: pd.DataFrame, JST_type: str) -> pd.DataFrame:
     """
     Call it on "income-population" type dataframe to calculate variance and mean for JSTs under JST specified in
-    JST_type param. You can always check your's dataframe type, by .attrs['type'].
+    JST_type param. You can always check yours dataframe type, by .attrs['type'].
     :param df: "income-population" type dataframe
-    :param JST_type: set "powiat" or "województwo", depending on which structre you're interested in
+    :param JST_type: set "powiat" or "województwo", depending on which structure you're interested in
     :return: 'mean-variance' type of df
     """
     if JST_type == "powiat":
@@ -36,7 +68,6 @@ def calculate_JST(df: pd.DataFrame, JST_type: str) -> pd.DataFrame:
         df3["Średni dochód opodatkowany"] = df2.groupby(by="województwo").agg(
             {"Dochody PIT": "mean"}
         )
-        print("dupa")
         return df3
 
 

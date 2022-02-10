@@ -100,13 +100,22 @@ def load_excel_pop(file_path: str) -> pd.ExcelFile:
     return excel_file
 
 
+def clean_columns_names(df: pd.DataFrame) -> pd.DataFrame:
+    for column in df.columns:
+        column_name = "".join(df[column][:6].dropna().tolist())
+        df = df.rename(columns={column: column_name})
+    df = df.iloc[7:]
+    return df.reset_index()
+
+
 def load_population_excel(
     file_path: str,
 ) -> pd.DataFrame:
     """
-
-    :param file_path:
-    :return:
+    This function lets you load an excel file containing data about the population for JSTs at Gmina level. You can
+    operate on the data further with the population_operations module.
+    :param file_path: path to the excel's file location
+    :return: "populations" type dataframe
     """
     excel_file = load_excel_pop(file_path=file_path)
     population_dict = create_population_dict(excel_file=excel_file)
@@ -118,11 +127,3 @@ def load_population_excel(
     df = clean_values(df=df)
     df = set_working_population(df=df)
     return df
-
-
-def clean_columns_names(df: pd.DataFrame) -> pd.DataFrame:
-    for column in df.columns:
-        column_name = "".join(df[column][:6].dropna().tolist())
-        df = df.rename(columns={column: column_name})
-    df = df.iloc[7:]
-    return df.reset_index()

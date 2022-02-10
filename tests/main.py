@@ -6,6 +6,7 @@ from JST_analysis import (
     population_income_merge,
     calculate_JST,
     calculate_tax_mean,
+    calculate_estimates,
 )
 import os
 
@@ -63,3 +64,9 @@ df = population_income_merge(income[2], population)
 df1 = calculate_tax_mean(df=df)
 df2 = calculate_JST(df=df, JST_type="powiat")
 df3 = calculate_JST(df=df, JST_type="województwo")
+df4 = calculate_estimates(
+    df_income_population=df, df_income=income[0], JST_level="powiat"
+)
+df5 = calculate_estimates(
+    df_income_population=df, df_income=income[1], JST_level="województwo"
+)
