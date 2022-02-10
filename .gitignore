@@ -12,9 +12,9 @@ __pycache__/
 .Python
 venv/
 env/
-build/
+distribution_data/build/
 develop-eggs/
-dist/
+#distribution_data/dist/
 downloads/
 eggs/
 .eggs/

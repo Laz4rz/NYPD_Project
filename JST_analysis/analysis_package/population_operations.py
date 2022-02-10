@@ -30,7 +30,9 @@ def calculate_estimates(
         left_on=df_income.attrs["JST_type"],
         right_on=JST_level,
     )
-    integrity = check_integrity(df1=df, df2=df, mode="estimates")
+    integrity_report = check_integrity(df1=df, df2=df, mode="estimates")
+    df.attrs["integrity_report"] = integrity_report
+    df.attrs["type"] = "estimates"
     df = df[~df[0].isna()]
     df = df[df.columns.drop(list(df.filter(regex="_merge|_x|_y")))]
     df = df.rename(columns={0: "Estymata dochodu PIT"})
