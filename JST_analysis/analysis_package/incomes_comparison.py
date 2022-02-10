@@ -16,12 +16,18 @@ def compare_incomes(df1: pd.DataFrame, df2: pd.DataFrame):
     """
     df1_JST_type = df1.attrs["JST_type"]
     df2_JST_type = df2.attrs["JST_type"]
+    df1_type = df1.attrs["type"]
+    df2_type = df2.attrs["type"]
     if df1.attrs["JST_type"] != df2.attrs["JST_type"]:
         raise Exception(
             f"JST types of dataframes dont match, df1: {df1_JST_type}, df2: {df2_JST_type}"
         )
+    elif df1_type == df2_type == "base_income":
+        raise Exception(
+            f"dataframes have to be of base_income type, df1: {df1_type}, df2: {df2_type}"
+        )
     else:
-        integrity_report = check_integrity(df1, df2)
+        integrity_report = check_integrity(df1=df1, df2=df2, mode="compare_incomes")
         df = create_base_compare_df(df1=df1, df2=df2)
         df.attrs["integrity_report"] = integrity_report
         df.attrs["year"] = [df1.attrs["year"], df2.attrs["year"]]
@@ -46,7 +52,7 @@ def create_base_compare_df(df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame
     ]
     df[f"Dochody w {df2.attrs['year']}"] = df2_income
 
-    df.attrs['type'] = 'income_comparison'
+    df.attrs["type"] = "income_comparison"
     return df
 
 
